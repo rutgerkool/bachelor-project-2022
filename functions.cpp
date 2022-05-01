@@ -59,8 +59,11 @@ int find_max(vector<int> v) {
 
 int main() 
 {
-    // run_all_test_cases(&const_1);
-    // run_all_test_cases(&sum);
+    cout<< "Testing const_1\n" << endl;
+    run_all_test_cases(&const_1);
+    cout<< "Testing sum\n" << endl;
+    run_all_test_cases(&sum);
+    cout<< "Testing sum_2\n" << endl;
     run_all_test_cases(&sum_2);
 
     return 0;

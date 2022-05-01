@@ -7,7 +7,9 @@
 #include <iomanip>
 #include <algorithm>
 #include <cmath>
+#include <thread>
 #include <future>
+#include <numeric>
 
 using namespace std;
 
@@ -49,16 +51,16 @@ double run_test_case(int x, function<int(int)> f)
     return chrono::duration<double, nano>(t_end-t_start).count();
 }
 
-int run_test_case(vector<int> v, function<int(vector<int>)> f) 
-{
-    return f(v);    
-}
+// int run_test_case(vector<int> v, function<int(vector<int>)> f) 
+// {
+//     return f(v);    
+// }
 
 vector<int> get_quadratic_sizes() 
 {
     vector<int> problem_sizes{500};
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         problem_sizes.push_back(problem_sizes[i] * 2);
     }
 
@@ -67,7 +69,7 @@ vector<int> get_quadratic_sizes()
 
 vector<int> get_linear_sizes() 
 {
-    vector<int> problem_sizes{10000};
+    vector<int> problem_sizes{1000};
 
     for (int i = 0; i < 10; i++) {
         problem_sizes.push_back(problem_sizes[i] * 2);
@@ -92,10 +94,22 @@ vector<int> get_logarithmic_sizes()
 double get_average_time(function<int(int)> f, int problem_size) 
 {
     double average_time = 0;
-    for (int j = 0; j < 50; j++) {
-        double time_taken = run_test_case(problem_size, f);
+    for (int j = 0; j < 200; j++) {
+        future<double> fut = async(run_test_case, problem_size, f);
 
-        average_time += time_taken;
+        std::chrono::milliseconds span(200);
+
+        future_status status = fut.wait_for(span);
+
+        if (status == future_status::timeout) {
+            cout << "timeout" << endl;
+            average_time = fut.get();
+            return -1;
+        } 
+        else if (status == future_status::ready) {
+            double time_taken = fut.get();
+            average_time += time_taken;
+        }
     }
 
     cout << fixed << setprecision(2) << "Average time: " << average_time / 50 << endl;
@@ -108,7 +122,12 @@ vector<double> get_average_times(function<int(int)> f, vector<int> problem_sizes
     vector<double> average_times;
     for (int i = 0; i < problem_sizes.size(); i++) {
         double average_time = 0;
+        
         average_time = get_average_time(f, problem_sizes[i]);
+        if (average_time == - 1) {
+            average_times.push_back(-1);
+            return average_times;
+        }
         average_times.push_back(average_time);
     }
 
@@ -117,14 +136,14 @@ vector<double> get_average_times(function<int(int)> f, vector<int> problem_sizes
 
 bool is_constant(function<int(int)> f)
 {
-    vector<int> problem_sizes{1, 10, 100, 1000, 10000, 100000, 1000000};
+    vector<int> problem_sizes{10, 20, 30, 40, 50, 60, 70, 80};
 
     vector<double> average_times = get_average_times(f, problem_sizes);
+    double expected_time = accumulate(average_times.begin(), average_times.end(), 0.0) / average_times.size();
 
-    for (int i = 0; i < average_times.size() - 1; i++) {
-        double expected_time = average_times[i];
-
-        if (average_times[i + 1] < 0.80 * expected_time || average_times[i + 1] > 1.20 * expected_time) {
+    for (int i = 0; i < average_times.size(); i++) {
+        if (average_times[i] < 0.80 * expected_time || average_times[i] > 1.20 * expected_time) {
+            cout << expected_time << endl;
             cout << "Does not pass test" << endl;
             return false;
         }
@@ -154,7 +173,11 @@ bool is_linear(function<int(int)> f)
         }
     }
 
-    return true;
+    if (average_times.size() >= 2) {
+        return true;
+    }
+    else 
+        return false;
 }
 
 bool is_quadratic(function<int(int)> f)
@@ -201,33 +224,34 @@ bool is_logarithmic(function<int(int)> f)
 
 void run_all_test_cases(function<int(int)> f) 
 {
+    
     cout << "Testing constant" << endl;
     if (is_constant(f)) {
-        cout << "Function is constant" << endl;
+        cout << "Function is constant\n" << endl;
         return;    
     }
-    else cout << "Function is not constant" << endl; 
+    else cout << "Function is not constant\n" << endl; 
     
     cout << "Testing linear" << endl;
     if (is_linear(f)) {
-        cout << "Function is linear" << endl;
+        cout << "Function is linear\n" << endl;
         return;    
     }
-    else cout << "Function is not linear" << endl; 
+    else cout << "Function is not linear\n" << endl; 
 
-    cout << "Testing logarithmic" << endl;
-    if (is_logarithmic(f)) {
-        cout << "Function is logarithmic" << endl;
-        return;    
-    }
-    else cout << "Function is not logarithmic" << endl; 
-
+    // cout << "Testing logarithmic" << endl;
+    // if (is_logarithmic(f)) {
+    //     cout << "Function is logarithmic\n" << endl;
+    //     return;    
+    // }
+    // else cout << "Function is not logarithmic\n" << endl; 
+    
     cout << "Testing quadratic" << endl;
     if (is_quadratic(f)) {
-        cout << "Function is quadratic" << endl;
+        cout << "Function is quadratic\n" << endl;
         return;
     }
-    else cout << "Function is not quadratic" << endl; 
+    else cout << "Function is not quadratic\n" << endl; 
 }
 
 void run_all_test_cases(function<int(vector<int>)> f) 
@@ -243,8 +267,6 @@ void run_all_test_cases(function<int(vector<int>)> f)
 
 /*
 
-- Smaller problem sizes;
-- Taking average values for the categories;
 
 
 */
