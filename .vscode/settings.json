@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "functional": "cpp",
+        "vector": "cpp",
+        "ostream": "cpp",
+        "chrono": "cpp",
+        "system_error": "cpp",
+        "cmath": "cpp"
+    }
+}
