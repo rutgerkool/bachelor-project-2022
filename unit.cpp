@@ -176,7 +176,7 @@ bool is_linear(function<int(int)> f)
         }
     }
 
-    cout << pass_count << "/" << average_times.size() << " tests passed: ";
+    cout << pass_count << "/" << average_times.size() - 1 << " tests passed: ";
 
     for (int i = 0; i < average_times.size(); i++) {
         if (average_times[i] == -1)
@@ -214,7 +214,7 @@ bool is_quadratic(function<int(int)> f)
         }
     }
 
-    cout << pass_count << "/" << average_times.size() << " tests passed: ";
+    cout << pass_count << "/" << average_times.size() - 1 << " tests passed: ";
 
     for (int i = 0; i < average_times.size(); i++) {
         if (average_times[i] == -1)
@@ -248,7 +248,7 @@ bool is_logarithmic(function<int(int)> f)
         }
     }
 
-    cout << pass_count << "/" << average_times.size() << " tests passed: ";
+    cout << pass_count << "/" << average_times.size() - 1 << " tests passed: ";
 
     return true;
 }
