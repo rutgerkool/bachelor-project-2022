@@ -4,12 +4,18 @@
 #include <iostream>
 #include <functional>
 #include <vector>
+#include <stdlib.h>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <algorithm>
+#include <cmath>
+#include <numeric>
 
 using namespace std;
 
 vector<int> return_random_vector(int size);
-int run_test_case(vector<int> v, function<int(vector<int>)> f);
-int run_test_case(int x, function<int(int)> f);
+double run_test_case(int x, function<int(int)> f); 
 void run_all_test_cases(function<int(int)> f) ;
 void run_all_test_cases(function<int(vector<int>)> f);
 

@@ -17,12 +17,12 @@ int sum(int n)
 
 int sum_log(int n)
 {
-    int x = 1;
-    for(int i = 1; i <= log(n); i++) {
-        x++;
+    int count = 0;
+    for (int i = 1; i < n; i = i * 2) {
+        count++;
     }
 
-    return x;
+    return count;
 }   
 
 int sum_2(int n) 
@@ -65,6 +65,8 @@ int main()
     run_all_test_cases(&sum);
     cout<< "Testing sum_2\n" << endl;
     run_all_test_cases(&sum_2);
+    cout<< "Testing sum_log\n" << endl;
+    run_all_test_cases(&sum_log);
 
     return 0;
 }
