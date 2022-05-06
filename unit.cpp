@@ -3,13 +3,15 @@
 #define NRUNS_STANDARD              1000
 #define NRUNS_LOGARITHMIC           1000000
 #define NRUNS_CONSTANT              2000000
-#define MAX_CONSTANT_TEST_TIME      10000
-#define MAX_QUADRATIC_TEST_TIME     20000000
+#define MAX_CONSTANT_TEST_TIME      1000
+#define MAX_LINEAR_TEST_TIME        2000000
+#define MAX_QUADRATIC_TEST_TIME     40000000
 
 
 using namespace std;
 
 int cycle_count = NRUNS_STANDARD;
+int max_run_time = 100000000;
 int max_test_time = MAX_QUADRATIC_TEST_TIME;
 
 enum big_o_category {
@@ -18,6 +20,17 @@ enum big_o_category {
     LOGARITHMIC,
     QUADRATIC = 2
 };
+
+vector<int> return_smallest_missing_vector(int size) 
+{
+    vector<int> v(size);
+
+    for (int i = 0; i < v.size(); i++) {
+        v[i] = v.size() - i - 1;
+    }
+
+    return v;
+} 
 
 vector<int> return_random_vector(int size) 
 {
@@ -42,7 +55,7 @@ double run_test_case(int x, function<int(int)> f)
 
 vector<int> get_quadratic_sizes() 
 {
-    vector<int> problem_sizes{100};
+    vector<int> problem_sizes{40};
 
     for (int i = 0; i < 5; i++) {
         problem_sizes.push_back(problem_sizes[i] * 2);
@@ -53,7 +66,7 @@ vector<int> get_quadratic_sizes()
 
 vector<int> get_linear_sizes() 
 {
-    vector<int> problem_sizes{2000};
+    vector<int> problem_sizes{1000};
 
     for (int i = 0; i < 9; i++) {
         problem_sizes.push_back(problem_sizes[i] * 2);
@@ -76,15 +89,24 @@ vector<int> get_logarithmic_sizes()
 double get_average_time(function<int(int)> f, int problem_size) 
 {
     double average_time = 0;
-
+    double max_time = -1;
     for (int j = 0; j < cycle_count; j++) {
         double time_taken = run_test_case(problem_size, f);
+        if (time_taken > max_time) max_time = time_taken;
+
+        if (time_taken > max_run_time) {
+            cout << fixed << setprecision(2) << time_taken << " and max " << max_test_time << endl;
+            cout << "\nExecution aborted due to exceeding of maximum time: ";
+            return -1;
+        }
+
         average_time += time_taken;
     }
 
     average_time /= cycle_count;
     cout << "[Size: " << left << setw(10) << problem_size << "]";
-    cout << fixed << setprecision(2) << "    Average time: " << average_time << " ns" << endl;
+    cout << fixed << setprecision(2) << "    Average time: " << average_time << " ns";
+    cout << "    Max_time: " << max_time << " ns" << endl;
 
     if (average_time > max_test_time) {
         cout << "\nExecution aborted due to exceeding of maximum time: ";
@@ -122,7 +144,6 @@ bool is_constant(function<int(int)> f)
     vector<double> average_times = get_average_times(f, problem_sizes);
 
     cycle_count = NRUNS_STANDARD;
-    max_test_time = MAX_QUADRATIC_TEST_TIME;
 
     double expected_time = accumulate(average_times.begin(), average_times.end(), 0.0) / average_times.size();
 
@@ -135,7 +156,7 @@ bool is_constant(function<int(int)> f)
             fail_count++;
 
             if (fail_count > 2)
-                cout << "Less than " << average_times.size() - 2 << " tests passed: ";
+                cout << "Less than " << average_times.size() - 2 << "/" << average_times.size() << " tests passed: ";
                 return false;
         }
         else {
@@ -155,6 +176,9 @@ bool is_constant(function<int(int)> f)
 
 bool is_linear(function<int(int)> f)
 {
+    max_test_time = MAX_LINEAR_TEST_TIME;
+    max_run_time = 2000000;
+
     vector<int> problem_sizes = get_linear_sizes();
 
     vector<double> average_times = get_average_times(f, problem_sizes);
@@ -167,9 +191,10 @@ bool is_linear(function<int(int)> f)
         
         if (average_times[i + 1] < 0.80 * expected_time || average_times[i + 1] > 1.20 * expected_time) {
             fail_count++;
-            if (fail_count > 2) 
-                cout << "Less than " << average_times.size() - 3 << " tests passed: ";
+            if (fail_count > 2) {
+                cout << "Less than " << average_times.size() - 3 << "/" << average_times.size() - 1 << " tests passed: ";
                 return false;
+            }
         }
         else {
             pass_count++;
@@ -192,6 +217,9 @@ bool is_linear(function<int(int)> f)
 
 bool is_quadratic(function<int(int)> f)
 {
+    max_test_time = MAX_QUADRATIC_TEST_TIME;
+    max_run_time = 100000000;
+
     vector<int> problem_sizes = get_quadratic_sizes();
 
     vector<double> average_times = get_average_times(f, problem_sizes);
@@ -202,12 +230,13 @@ bool is_quadratic(function<int(int)> f)
     for (int i = 0; i < average_times.size() - 1; i++) {
         double expected_time = pow(2, static_cast<int>(QUADRATIC)) * average_times[i];
 
-        if (average_times[i + 1] < 0.90 * expected_time || average_times[i + 1] > 1.10 * expected_time) {
+        if (average_times[i + 1] < 0.85 * expected_time || average_times[i + 1] > 1.15 * expected_time) {
             
             fail_count++;
-            if (fail_count > 1) 
-                cout << "Less than " << average_times.size() - 2 << " tests passed: ";
+            if (fail_count > 1) {
+                cout << "Less than " << average_times.size() - 2 << "/" << average_times.size() - 1 << " tests passed: ";
                 return false;
+            }
         }
         else {
             pass_count++;
@@ -250,7 +279,16 @@ bool is_logarithmic(function<int(int)> f)
 
     cout << pass_count << "/" << average_times.size() - 1 << " tests passed: ";
 
-    return true;
+    for (int i = 0; i < average_times.size(); i++) {
+        if (average_times[i] == -1)
+            return false;
+    }
+
+    if (average_times.size() >= 2) {
+        return true;
+    }
+    else 
+        return false;
 }
 
 void run_all_test_cases(function<int(int)> f, const std::string& function_name) 

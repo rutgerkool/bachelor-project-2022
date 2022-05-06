@@ -5,6 +5,26 @@
 
 using namespace std;
 
+int smallest_missing(int n) 
+{
+    vector<int> v = return_smallest_missing_vector(n);
+
+    int smallest = -1;
+    int count = 0;
+
+    while (count < v.size()) {
+        if ( v.at(count) == smallest+1 ){
+            smallest = v.at(count);
+            count = -1;
+        }
+        count++;
+    }
+
+    int smallest_missing = smallest + 1;
+
+    return smallest_missing;
+}
+
 int sum(int n) 
 {
     int x = 1;
@@ -63,6 +83,7 @@ int main()
     TEST_CASE(sum);
     TEST_CASE(sum_2);
     TEST_CASE(sum_log);
+    TEST_CASE(smallest_missing);
 
     return 0;
 }

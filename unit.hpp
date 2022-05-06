@@ -17,6 +17,7 @@
 
 using namespace std;
 
+vector<int> return_smallest_missing_vector(int size);
 vector<int> return_random_vector(int size);
 double run_test_case(int x, function<int(int)> f); 
 void run_all_test_cases(function<int(int)> f, const std::string& funcName);
