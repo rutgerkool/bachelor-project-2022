@@ -45,6 +45,18 @@ int sum_log(int n)
     return count;
 }   
 
+int sum_nlog(int n)
+{
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 1; j < n; j = j * 2) {
+            count++;
+        }
+    }
+
+    return count;
+}   
+
 int sum_2(int n) 
 {
     int x = 1;
@@ -84,6 +96,7 @@ int main()
     TEST_CASE(sum_2);
     TEST_CASE(sum_log);
     TEST_CASE(smallest_missing);
+    TEST_CASE(sum_nlog);
 
     return 0;
 }
