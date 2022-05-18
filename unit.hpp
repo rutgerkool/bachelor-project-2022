@@ -16,7 +16,6 @@
 #define TEST_CASE(f) run_all_test_cases(f, #f)
 
 using namespace std;
-
 vector<int> return_smallest_missing_vector(int size);
 vector<int> return_random_vector(int size);
 double run_test_case(int x, function<int(int)> f); 

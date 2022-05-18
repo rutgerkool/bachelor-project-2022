@@ -22,6 +22,11 @@ enum big_o_category {
     QUADRATIC = 2
 };
 
+int fact(int n)
+{
+    return (n == 0) || (n == 1) ? 1 : n * fact(n - 1);
+}
+
 vector<int> return_smallest_missing_vector(int size) 
 {
     vector<int> v(size);
@@ -98,12 +103,24 @@ vector<int> get_linearithmic_sizes()
     return problem_sizes;
 }
 
+vector<int> get_factorial_sizes() 
+{
+    vector<int> problem_sizes{4};
+
+    for (int i = 0; i < 5; i++) {
+        problem_sizes.push_back(problem_sizes[i] + 1);
+    }
+
+    return problem_sizes;
+}
+
 double get_average_time(function<int(int)> f, int problem_size) 
 {
     double average_time = 0;
     double max_time = -1;
     for (int j = 0; j < cycle_count; j++) {
         double time_taken = run_test_case(problem_size, f);
+        if (j == 0) continue;
         if (time_taken > max_time) max_time = time_taken;
 
         if (time_taken > max_run_time) {
@@ -114,7 +131,7 @@ double get_average_time(function<int(int)> f, int problem_size)
 
         average_time += time_taken;
     }
-
+    cout << endl;
     average_time /= cycle_count;
     cout << "[Size: " << left << setw(10) << problem_size << "]";
     cout << fixed << setprecision(2) << "    Average time: " << average_time
@@ -352,10 +369,55 @@ bool is_linearithmic(function<int(int)> f)
         return false;
 }
 
+bool is_factorial(function<int(int)> f)
+{
+    cycle_count = NRUNS_STANDARD;
+    max_test_time = MAX_QUADRATIC_TEST_TIME;
+    max_run_time = MAX_QUADRATIC_TEST_TIME;
+    
+    vector<int> problem_sizes = get_factorial_sizes();
+
+    vector<double> average_times = get_average_times(f, problem_sizes);
+
+    int fail_count = 0;
+    int pass_count = 0;
+
+    for (int i = 1; i < average_times.size(); i++) {
+        double expected_time = average_times[i - 1] * fact(problem_sizes[i]) / fact(problem_sizes[i - 1]);
+
+        if (average_times[i] < 0.80 * expected_time || average_times[i] > 1.20 * expected_time) {
+            fail_count++;
+            if (fail_count > 1) {
+                cout << "Less than " << average_times.size() - 2 << "/" << average_times.size() - 1 << " tests passed: ";
+                return false;
+            }
+        }
+        else {
+            pass_count++;
+        }
+    }
+
+    cout << pass_count << "/" << average_times.size() - 1 << " tests passed: ";
+
+    for (int i = 0; i < average_times.size(); i++) {
+        if (average_times[i] == -1)
+            return false;
+    }
+
+    if (average_times.size() >= 2) {
+        return true;
+    }
+    else 
+        return false;
+
+    return true;
+}
+
 void run_all_test_cases(function<int(int)> f, const std::string& function_name) 
 {
     cout << "\nTesting function " << function_name << endl << endl;
 
+    /*
     cout << "Testing for O(1):" << endl;
     if (is_constant(f)) {
         cout << "\033[1;32mSUCCESS\033[0m" << endl;
@@ -409,5 +471,17 @@ void run_all_test_cases(function<int(int)> f, const std::string& function_name)
     else {
         cout << "\033[1;31mFAIL\033[0m" << endl;
         cout << "\nFunction is not in O(n^2)\n" << endl;
+    } 
+    */
+
+    cout << "\nTesting for O(n!):" << endl;
+    if (is_factorial(f)) {
+        cout << "\033[1;32mSUCCESS\033[0m" << endl;
+        cout << "\nFunction is in O(n!)\n" << endl;
+        return;
+    }
+    else {
+        cout << "\033[1;31mFAIL\033[0m" << endl;
+        cout << "\nFunction is not in O(n!)\n" << endl;
     } 
 }

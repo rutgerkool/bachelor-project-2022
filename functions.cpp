@@ -5,6 +5,18 @@
 
 using namespace std;
 
+int factorial_sum(int n)
+{
+    if (n == 0 || n == 1) return 1;
+
+    int x = 0;
+    for (int i = 1; i <= n; i++) {
+        x += factorial_sum(n - 1);
+    }
+
+    return x;
+}
+
 int smallest_missing(int n) 
 {
     vector<int> v = return_smallest_missing_vector(n);
@@ -91,12 +103,14 @@ int find_max(vector<int> v) {
 
 int main() 
 {
-    TEST_CASE(const_1);
-    TEST_CASE(sum);
-    TEST_CASE(sum_2);
-    TEST_CASE(sum_log);
-    TEST_CASE(smallest_missing);
-    TEST_CASE(sum_nlog);
+    // TEST_CASE(const_1);
+    // TEST_CASE(sum);
+    // TEST_CASE(sum_2);
+    // TEST_CASE(sum_log);
+    // TEST_CASE(smallest_missing);
+    // TEST_CASE(sum_nlog);
+    TEST_CASE(factorial_sum);
+
 
     return 0;
 }
