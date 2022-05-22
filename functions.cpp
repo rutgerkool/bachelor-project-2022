@@ -3,8 +3,6 @@
 #include <cmath>
 #include "unit.hpp"
 
-using namespace std;
-
 int factorial_sum(int n)
 {
     if (n == 0 || n == 1) return 1;
@@ -19,7 +17,7 @@ int factorial_sum(int n)
 
 int smallest_missing(int n) 
 {
-    vector<int> v = return_smallest_missing_vector(n);
+    std::vector<int> v = return_smallest_missing_vector(n);
 
     int smallest = -1;
     int count = 0;
@@ -89,7 +87,7 @@ int const_1(int index)
         return 0;
 }
 
-int find_max(vector<int> v) {
+int find_max(std::vector<int> v) {
 
     int max = -1;
 
@@ -103,14 +101,7 @@ int find_max(vector<int> v) {
 
 int main() 
 {
-    // TEST_CASE(const_1);
-    // TEST_CASE(sum);
-    // TEST_CASE(sum_2);
-    // TEST_CASE(sum_log);
-    // TEST_CASE(smallest_missing);
-    // TEST_CASE(sum_nlog);
-    TEST_CASE(factorial_sum);
-
-
+    TEST_CASE(sum_2);
+    
     return 0;
 }
