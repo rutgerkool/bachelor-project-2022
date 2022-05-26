@@ -101,7 +101,13 @@ int find_max(std::vector<int> v) {
 
 int main() 
 {
-    TEST_CASE(sum_2);
-    
+    // TEST_CASE(const_1);
+    //TEST_CASE(sum);
+    //TEST_CASE(sum_2);
+    //TEST_CASE(sum_log);
+    //TEST_CASE(smallest_missing);
+    //TEST_CASE(sum_nlog);
+    //TEST_CASE(factorial_sum);
+
     return 0;
 }
