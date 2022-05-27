@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "unit.hpp"
 
 int factorial_sum(int n)
 {
@@ -15,10 +14,8 @@ int factorial_sum(int n)
     return x;
 }
 
-int smallest_missing(int n) 
+int findSmallestMissingNumber(const std::vector<int> &v) 
 {
-    std::vector<int> v = return_smallest_missing_vector(n);
-
     int smallest = -1;
     int count = 0;
 
@@ -101,13 +98,5 @@ int find_max(std::vector<int> v) {
 
 int main() 
 {
-    // TEST_CASE(const_1);
-    //TEST_CASE(sum);
-    //TEST_CASE(sum_2);
-    //TEST_CASE(sum_log);
-    //TEST_CASE(smallest_missing);
-    //TEST_CASE(sum_nlog);
-    //TEST_CASE(factorial_sum);
-
-    return 0;
+    return 0;   
 }
