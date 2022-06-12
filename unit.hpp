@@ -34,7 +34,10 @@ std::vector<int> return_random_vector(int size);
 double get_time_measure(int x, std::function<int(int)> f); 
 int run_test_case(std::function<int(int)> f, const std::string& function_name, int category_number);
 int run_test_case(std::function<int(std::vector<int>)> f, const std::string& function_name, int category_number);
-void run_all_test_cases(std::function<int(int)> f, const std::string& funcName);
+int run_test_case(std::function<bool(int n, std::vector<std::vector<bool>>&, int row)> f, const std::string& function_name, int category_number); 
+int run_all_test_cases(std::function<int(int)> f, const std::string& funcName);
+int run_all_test_cases(std::function<int(std::vector<int>)> f, const std::string& function_name);
+int run_all_test_cases(std::function<bool(int n, const std::vector<std::vector<bool>>&, int row)> f, const std::string& function_name);
 int renamedMain();
 
 #endif /* UNIT_H */

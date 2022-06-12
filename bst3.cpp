@@ -1,7 +1,3 @@
-#include "include.hpp"
-
-#define main() main() {renamedMain(); return 0;} int foo()
-
 
 
     #include <iostream>
@@ -154,15 +150,3 @@
         return 0;
     }
 
-
-#include <iostream>
-#include "unit-class.hpp"
-
-int renamedMain()
-{
-    Framework framework(LINEAR_NUM);
-    BST* binarySearchTree = new BST;
-    framework.test_function(binarySearchTree);
-
-    return 0;
-}

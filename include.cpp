@@ -1,2 +1,4 @@
+#include "include.hpp"
 
-#include "unit.hpp"
+#define main() main() {renamedMain(); return 0;} int foo()
+
