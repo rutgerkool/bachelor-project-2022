@@ -5,8 +5,13 @@
 int renamedMain()
 {
     Framework framework(LINEAR_NUM);
-    BST* binarySearchTree = new BST;
-    framework.test_function(binarySearchTree);
-
+    try 
+    {
+        framework.test_function();
+    }
+    catch (std::exception& e) 
+    {
+        std::cerr << "exception: " << e.what() << std::endl;
+    }
     return 0;
 }

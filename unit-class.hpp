@@ -12,6 +12,7 @@
 #include <cmath>
 #include <numeric>
 #include <string>
+#include "function.hpp"
 
 #define main() main() {renamedMain(); return 0;} int foo()
 
@@ -35,6 +36,20 @@
 int cycle_count = 10000;
 int max_run_time = 100000000;
 int max_test_time = MAX_QUADRATIC_TEST_TIME;
+
+
+std::vector<int> return_random_vector(int size) 
+{
+    std::vector<int> v(size);
+    srand((unsigned)time(0)); 
+
+    for (int i = 0; i < size; i++) 
+    {
+        v[i] = rand() % size;
+    }
+
+    return v;
+} 
 
 class Framework
 {
@@ -67,31 +82,6 @@ private:
     {
         return (n == 0) || (n == 1) ? 1 : n * fact(n - 1);
     }
-
-    std::vector<int> return_smallest_missing_vector(int size) 
-    {
-        std::vector<int> v(size);
-
-        for (int i = 0; i < v.size(); i++) 
-        {
-            v[i] = v.size() - i - 1;
-        }
-
-        return v;
-    } 
-
-    std::vector<int> return_random_vector(int size) 
-    {
-        std::vector<int> v(size);
-        srand((unsigned)time(0)); 
-
-        for (int i = 0; i < size; i++) 
-        {
-            v[i] = rand() % size;
-        }
-
-        return v;
-    } 
 
     /*
     To get the problem sizes for the right category.
@@ -231,7 +221,7 @@ private:
     int get_fail_count(std::vector<double> average_times, std::vector<int> problem_sizes, int category_number)
     {
         int fail_count = 0;
-        for (int i = 0; i < average_times.size() - 1; i++) {
+        for (int i = 1; i < average_times.size() - 1; i++) {
             double expected_time = get_expected_time(average_times, problem_sizes, i, category_number);
 
             if (is_time(average_times.at(i + 1), expected_time, category_number)) {
@@ -318,18 +308,18 @@ public:
     above to test for the corresponding category. Its return value could be passed to CodeGrade to indicate whether the 
     points should be given or not. 
     */
-    int test_function(std::function<int(const std::vector<int> &v)> student_function) 
+    int test_function() 
     {
         std::vector<double> average_times;
         for (int problem_size : problem_sizes)
         {
             std::vector<double> running_times;
             double average_time = 0;
-            const std::vector<int> v = return_smallest_missing_vector(problem_size);
+            student_function::initialize(problem_size);
             for (int j = 0; j < cycle_count; j++) 
             {
                 auto t_start = std::chrono::high_resolution_clock::now();
-                student_function(v);    
+                student_function::run();   
                 auto t_end = std::chrono::high_resolution_clock::now();
 
                 double time_taken = std::chrono::duration<double, std::nano>(t_end-t_start).count();
@@ -349,127 +339,6 @@ public:
             average_times.push_back(average_time);
         }
 
-        if (print_test_results(is_in_category(average_times), category_number) == 0) return 0;
-
-        return -1;
-    }
-
-    /*
-    For the placeQueens() function. It runs the function with the problem sizes and then uses the functions 
-    above to test for the corresponding category. Its return value could be passed to CodeGrade to indicate whether the 
-    points should be given or not. 
-    */
-    int test_function(std::function<bool(int N, std::vector<std::vector<bool> >& b, int row)> student_function)
-    {
-        std::vector<double> average_times;
-        for (int problem_size : problem_sizes)
-        {
-            std::vector<double> running_times;
-            std::vector<std::vector<bool>> v(problem_size, std::vector<bool>(problem_size));
-            for (int j = 0; j < cycle_count; j++) 
-            {
-                auto t_start = std::chrono::high_resolution_clock::now();
-                student_function(problem_size, v, 0);    
-                auto t_end = std::chrono::high_resolution_clock::now();
-
-                double time_taken = std::chrono::duration<double, std::nano>(t_end-t_start).count();
-                running_times.push_back(time_taken);
-            }
-            double average_time = get_average_time(running_times, problem_size);
-            if (average_time == -1)
-            {
-                average_times.push_back(average_time);
-                break;
-            }
-            average_times.push_back(average_time);
-        }
-
-        std::cerr << "\nTesting function " << student_function.target_type().name() << std::endl << std::endl;
-        if (print_test_results(is_in_category(average_times), category_number) == 0) return 0;
-
-        return -1;
-    }
- 
-    /*
-    For the insertKey() function. It runs the function with the problem sizes and then uses the functions 
-    above to test for the corresponding category. Its return value could be passed to CodeGrade to indicate whether the 
-    points should be given or not. 
-    */
-    int test_function(std::function<std::vector<int>(void)> student_function, BST *binarySearchTree)
-    {
-        std::vector<double> average_times;
-        for (int problem_size : problem_sizes)
-        {
-            binarySearchTree = new BST;
-            for (int i = 0; i < problem_size; i++) binarySearchTree->insertKey(i);
-            std::vector<double> running_times;
-            double average_time = 0;
-            for (int j = 0; j < cycle_count; j++) 
-            {
-                auto t_start = std::chrono::high_resolution_clock::now();
-                binarySearchTree->insertKey(problem_size + 1);    
-                auto t_end = std::chrono::high_resolution_clock::now();
-
-                double time_taken = std::chrono::duration<double, std::nano>(t_end-t_start).count();
-                if (check_running_time(time_taken) == -1) 
-                {
-                    average_time = -1;
-                    break;
-                }
-                running_times.push_back(time_taken);
-            }
-            average_time = get_average_time(running_times, problem_size);
-            if (average_time == -1)
-            {
-                average_times.push_back(average_time);
-                break;
-            }
-            average_times.push_back(average_time);
-        }
-
-        std::cerr << "\nTesting function " << std::endl << std::endl;
-        if (print_test_results(is_in_category(average_times), category_number) == 0) return 0;
-
-        return -1;
-    }
-
-    /*
-    For the inOrder() function. It runs the function with the problem sizes and then uses the functions 
-    above to test for the corresponding category. Its return value could be passed to CodeGrade to indicate whether the 
-    points should be given or not. 
-    */
-    int test_function(BST *binarySearchTree)
-    {
-        std::vector<double> average_times;
-        for (int problem_size : problem_sizes)
-        {
-            for (int i = 0; i < problem_size; i++) binarySearchTree->insertKey(i);
-            std::vector<double> running_times;
-            double average_time = 0;
-            for (int j = 0; j < cycle_count; j++) 
-            {
-                auto t_start = std::chrono::high_resolution_clock::now();
-                binarySearchTree->inOrder();    
-                auto t_end = std::chrono::high_resolution_clock::now();
-
-                double time_taken = std::chrono::duration<double, std::nano>(t_end-t_start).count();
-                if (check_running_time(time_taken) == -1) 
-                {
-                    average_time = -1;
-                    break;
-                }
-                running_times.push_back(time_taken);
-            }
-            average_time = get_average_time(running_times, problem_size);
-            if (average_time == -1)
-            {
-                average_times.push_back(average_time);
-                break;
-            }
-            average_times.push_back(average_time);
-        }
-
-        std::cerr << "\nTesting function " << std::endl << std::endl;
         if (print_test_results(is_in_category(average_times), category_number) == 0) return 0;
 
         return -1;
