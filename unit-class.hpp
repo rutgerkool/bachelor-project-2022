@@ -2,9 +2,7 @@
 #define UNIT_CLASS_H
 
 #include <iostream>
-#include <functional>
 #include <vector>
-#include <stdlib.h>
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -14,29 +12,12 @@
 #include <string>
 #include "function.hpp"
 
-#define main() main() {renamedMain(); return 0;} int foo()
-
-#define NRUNS_STANDARD              1000
-#define NRUNS_LOGARITHMIC           1000
-#define NRUNS_CONSTANT              2000000
-#define MAX_CONSTANT_TEST_TIME      10000
-#define MAX_LOGARITHMIC_TEST_TIME   10000
 #define MAX_LINEAR_TEST_TIME        300000
-#define MAX_LINEARITHMIC_TEST_TIME  100000
 #define MAX_QUADRATIC_TEST_TIME     40000000
-#define MAX_QUADRATIC_RUN_TIME      10000000
 
-#define CONSTANT_NUM                0
-#define LOGARITHMIC_NUM             1
-#define LINEAR_NUM                  2
-#define LINEARITHMIC_NUM            3
-#define QUADRATIC_NUM               4
-#define FACTORIAL_NUM               5
-
-int cycle_count = 10000;
+int cycle_count = 1000;
 int max_run_time = 100000000;
 int max_test_time = MAX_QUADRATIC_TEST_TIME;
-
 
 std::vector<int> return_random_vector(int size) 
 {
@@ -54,24 +35,24 @@ std::vector<int> return_random_vector(int size)
 class Framework
 {
 private:
-    int category_number;
+    Category category;
     std::vector<int> problem_sizes;
 
-    std::string return_test_category_string(int category_number)
+    std::string return_test_category_string()
     {
-        switch (category_number)
+        switch (category)
         {
-        case CONSTANT_NUM:
+        case CONSTANT_TIME:
             return "O(1)";
-        case LOGARITHMIC_NUM:
+        case LOGARITHMIC_TIME:
             return "O(log(n))";
-        case LINEAR_NUM:
+        case LINEAR_TIME:
             return "O(n)";
-        case LINEARITHMIC_NUM:
+        case LINEARITHMIC_TIME:
             return "O(n log(n))";
-        case QUADRATIC_NUM:
+        case QUADRATIC_TIME:
             return "O(n^2)";
-        case FACTORIAL_NUM:
+        case FACTORIAL_TIME:
             return "O(n!)";
         }
 
@@ -86,23 +67,25 @@ private:
     /*
     To get the problem sizes for the right category.
     */
-    std::vector<int> get_sizes(int category_number)
+    std::vector<int> get_sizes()
     {
-        switch (category_number)
+        switch (category)
         {
-        case CONSTANT_NUM:
+        case CONSTANT_TIME:
             return {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};    
-        case LOGARITHMIC_NUM:
+        case LOGARITHMIC_TIME:
             return {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};    
-        case LINEAR_NUM:
-            max_test_time = MAX_LINEAR_TEST_TIME;
-            return {20, 40, 80, 160, 320, 640};
-        case LINEARITHMIC_NUM:
-            return {1, 10, 100, 1000, 10000};    
-        case QUADRATIC_NUM:
+        case LINEAR_TIME:
+            //return {20, 40, 80, 160, 320, 640};
+            return {2,4,8,16,32,64};
+            //return {80, 160, 320, 640, 1280};
+        case LINEARITHMIC_TIME:
+            return {40, 80, 160, 320, 640, 1280};    
+        case QUADRATIC_TIME:
             return {40, 80, 160, 320, 640};    
-        case FACTORIAL_NUM:
-            return {2, 4, 6, 8, 10, 12};    
+        case FACTORIAL_TIME:
+            return {2, 4, 6, 8, 10, 12};
+            //return {4,5,6,7,8};    
         }
         return {-1};
     } 
@@ -116,54 +99,45 @@ private:
     {
         std::vector<double> filtered_running_times;
         double std, mean, sum = 0.0;
-        
-        bool time_is_removed = true;
-        while (time_is_removed) {
-            time_is_removed = false;
 
-            sum = std::accumulate(running_times.begin(), running_times.end(), 0.0);
-            mean = sum / running_times.size();
+        sum = std::accumulate(running_times.begin(), running_times.end(), 0.0);
+        mean = sum / running_times.size();
 
-            for (double x : running_times) {
-                std += pow(x - mean, 2);
-            }
-
-            std = sqrt(std / running_times.size());
-
-            for (double time : running_times) {
-                if (get_z_score(time, mean, std) < 1 && get_z_score(time, mean, std) > -1) {
-                    filtered_running_times.push_back(time);
-                } else {
-                    time_is_removed = true;
-                }
-            }
-            
-            running_times = filtered_running_times;
-            filtered_running_times.clear();
+        for (double x : running_times) {
+            std += pow(x - mean, 2);
         }
+
+        std = sqrt(std / running_times.size());
+
+        for (double time : running_times) {
+            if (get_z_score(time, mean, std) < 3 && get_z_score(time, mean, std) > -3) {
+                filtered_running_times.push_back(time);
+            } 
+        }
+        
+        running_times = filtered_running_times;
 
         std::cerr << "Mean: " << mean << " and std: " << std << std::endl;
 
         return running_times;
     }
 
-    int get_expected_time(std::vector<double> average_times, std::vector<int> problem_sizes, int i, int category_number)
+    int get_expected_time(std::vector<double> average_times, int i)
     {
-        switch (category_number)
+        switch (category)
         {
-        case CONSTANT_NUM:
+        case CONSTANT_TIME:
             return average_times[0];    
-        case LOGARITHMIC_NUM:
+        case LOGARITHMIC_TIME:
             return average_times[0] + log2(problem_sizes[i]);  
-        case LINEAR_NUM:
+        case LINEAR_TIME:
             return 2 * average_times.at(i);
-        case LINEARITHMIC_NUM:
-            return (average_times[0] + 1.5 * log2(problem_sizes[i]) * problem_sizes[i]);    
-        case QUADRATIC_NUM:
+        case LINEARITHMIC_TIME:
+            return average_times[i] * (log2(problem_sizes[i + 1]) / 2);     
+        case QUADRATIC_TIME:
             return 4 * average_times[i];  
-        case FACTORIAL_NUM:
-            std::cerr << fact(problem_sizes[i]) / fact(problem_sizes[i - 1]) << std::endl;
-            return average_times[i - 1] * (fact(problem_sizes[i]) / fact(problem_sizes[i - 1]));  
+        case FACTORIAL_TIME:
+            return average_times[i] * (fact(problem_sizes[i + 1]) / fact(problem_sizes[i]));  
         }
         return -1;
     }
@@ -180,12 +154,12 @@ private:
 
     bool is_linear_time(double average_time, double expected_time)
     {
-        return average_time < 0.80 * expected_time || average_time > 1.20 * expected_time;
+        return average_time < 0.90 * expected_time || average_time > 1.10 * expected_time;
     }
 
     bool is_linearithmic_time(double average_time, double expected_time)
     {
-        return average_time < 0.90 * expected_time || average_time > 1.10 * expected_time;
+        return average_time < 0.80 * expected_time || average_time > 1.20 * expected_time;
     }
 
     bool is_quadratic_time(double average_time, double expected_time)
@@ -198,33 +172,33 @@ private:
         return average_time < 0.75 * expected_time || average_time > 1.25 * expected_time;
     }
 
-    bool is_time(double average_time, double expected_time, int category_number)
+    bool is_time(double average_time, double expected_time)
     {
-        switch (category_number)
+        switch (category)
         {
-        case CONSTANT_NUM:
+        case CONSTANT_TIME:
             return is_constant_time(average_time, expected_time);    
-        case LOGARITHMIC_NUM:
+        case LOGARITHMIC_TIME:
             return is_logarithmic_time(average_time, expected_time);    
-        case LINEAR_NUM:
+        case LINEAR_TIME:
             return is_linear_time(average_time, expected_time);    
-        case LINEARITHMIC_NUM:
+        case LINEARITHMIC_TIME:
             return is_linearithmic_time(average_time, expected_time);    
-        case QUADRATIC_NUM:
+        case QUADRATIC_TIME:
             return is_quadratic_time(average_time, expected_time);    
-        case FACTORIAL_NUM:
+        case FACTORIAL_TIME:
             return is_factorial_time(average_time, expected_time);    
         }
         return false;
     }
 
-    int get_fail_count(std::vector<double> average_times, std::vector<int> problem_sizes, int category_number)
+    int get_fail_count(std::vector<double> average_times)
     {
         int fail_count = 0;
-        for (int i = 1; i < average_times.size() - 1; i++) {
-            double expected_time = get_expected_time(average_times, problem_sizes, i, category_number);
+        for (int i = 0; i < average_times.size() - 1; i++) {
+            double expected_time = get_expected_time(average_times, i);
 
-            if (is_time(average_times.at(i + 1), expected_time, category_number)) {
+            if (is_time(average_times.at(i + 1), expected_time)) {
                 fail_count++;
                 std::cerr << average_times.at(i + 1) << " " << expected_time << " " << fail_count << std::endl;
             } else {
@@ -237,11 +211,11 @@ private:
 
     bool is_in_category(std::vector<double> average_times)
     {
-        std::string category_name = return_test_category_string(category_number);
+        std::string category_name = return_test_category_string();
         std::cerr << "Testing for " << category_name << ":" << std::endl;
 
-        int fail_count = get_fail_count(average_times, problem_sizes, category_number);
-        if (fail_count > 2) {
+        int fail_count = get_fail_count(average_times);
+        if (fail_count > 1) {
             std::cerr << "Less than " << average_times.size() - 2 << "/" << average_times.size() - 1 << " tests passed: ";
             return false;
         }
@@ -256,16 +230,18 @@ private:
         return true;
     }
 
-    int print_test_results(bool is_in_category, int category_number) 
+    int print_test_results(bool is_in_category) 
     {
-        std::string category_name = return_test_category_string(category_number);
+        std::string category_name = return_test_category_string();
         
         if (is_in_category) {
+            std::cout << "SUCCESS\n" << std::endl;
             std::cerr << "\033[1;32mSUCCESS\033[0m\n" << std::endl;
             std::cout << "Function is in " << category_name << "\n";
             return 0;    
         }
         else {
+            std::cout << "FAIL\n" << std::endl;
             std::cerr << "\033[1;31mFAIL\033[0m\n" << std::endl;
             std::cout << "Function is not in " << category_name << "\n"; 
             return 1;
@@ -274,7 +250,7 @@ private:
 
     double get_average_time(std::vector<double> running_times, int problem_size)
     {
-        std::vector<double> filtered_times = get_filtered_times(running_times);
+        std::vector<double> filtered_times = running_times;
         double total_time = std::accumulate(filtered_times.begin(), filtered_times.end(), 0.0);
         double average_time = total_time / filtered_times.size();
 
@@ -301,13 +277,19 @@ private:
     }
 
 public:
-    Framework(int category_number);
+    Framework()
+    {
+        this->category = student_function::category;
+        if (student_function::problem_sizes.size() == 0)
+        {
+            this->problem_sizes = get_sizes();
+        }
+        else 
+        {
+            this->problem_sizes = student_function::problem_sizes;
+        }
+    }
 
-    /*
-    For the findSmallestMissingNumber() function. It runs the function with the problem sizes and then uses the functions 
-    above to test for the corresponding category. Its return value could be passed to CodeGrade to indicate whether the 
-    points should be given or not. 
-    */
     int test_function() 
     {
         std::vector<double> average_times;
@@ -315,14 +297,14 @@ public:
         {
             std::vector<double> running_times;
             double average_time = 0;
-            student_function::initialize(problem_size);
             for (int j = 0; j < cycle_count; j++) 
             {
-                auto t_start = std::chrono::high_resolution_clock::now();
-                student_function::run();   
-                auto t_end = std::chrono::high_resolution_clock::now();
+                student_function::initialize(problem_size);
+                auto start = std::chrono::high_resolution_clock::now();
+                student_function::run();
+                auto end = std::chrono::high_resolution_clock::now();
 
-                double time_taken = std::chrono::duration<double, std::nano>(t_end-t_start).count();
+                double time_taken = std::chrono::duration<double, std::nano>(end-start).count();
                 if (check_running_time(time_taken) == -1) 
                 {
                     average_time = -1;
@@ -339,18 +321,10 @@ public:
             average_times.push_back(average_time);
         }
 
-        if (print_test_results(is_in_category(average_times), category_number) == 0) return 0;
+        if (print_test_results(is_in_category(average_times)) == 0) return 0;
 
         return -1;
     }
 };
-
-Framework::Framework(int category_number)
-{
-    this->category_number = category_number;
-    this->problem_sizes = get_sizes(category_number);
-}
-
-int renamedMain();
 
 #endif /* UNIT_CLASS_H */

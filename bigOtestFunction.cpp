@@ -1,173 +1,91 @@
+
 #include "include.hpp"
 
-#define main() main() {renamedMain(); return 0;} int foo()
+#define main(...)                                   main() {run_framework(); return 0;} int foo(int argc, char *argv[])
 
 
+#include <iostream>
+#include <vector>
+int findSmallestNumber(const std::vector<int> v){
+    int smallest = v.at(0);
+    for (int i=1; i<v.size(); i++){
+        if ( v.at(i) < smallest ){
+            smallest = v.at(i);
+        }
+    }
+    return smallest;
+}
+int findSmallestMissingNumber(const std::vector<int> &v){
+    std::vector<bool> missing(v.size(),true);
+    const int smallest = findSmallestNumber(v);
+    const int maxPossible = smallest + v.size() - 1;
+    for (int i=0; i<v.size(); i++){
+        if ( v.at(i) <= maxPossible ){
+            missing.at(v.at(i) - smallest) = false;
+        }
+    }
+    for (int i=0; i<missing.size(); i++){
+        if ( missing.at(i) ){
+            return smallest+i;
+        }
+    }
+    return smallest+v.size();
+}
+int main(){
+    int vectorSize;
+    std::cout << "How many numbers? ";
+    std::cin >> vectorSize;
+    std::vector<int> inputVector(vectorSize);
+    std::cout << "Please enter the numbers ";
+    for ( int i=0; i<vectorSize; i++){
+        std::cin >> inputVector.at(i);
+    }
+    const int smallestMissing = findSmallestMissingNumber(inputVector);
+    std::cout << "The smallest missing number is " << smallestMissing << std::endl;
+    return 0;
+}
 
-    #include <iostream>
-    #include <cmath>
-    #include <vector>
-    #include <string>
-    using namespace std;
-    class BST{
-        public:
-            BST();
-            ~BST();
-            void insertKey(int newKey);
-            bool hasKey(int searchKey);
-            std::vector<int> inOrder();
-            int getHeight();
-        private:
-            class Node {
-                public:
-                    int data; // Node Object
-                    Node* left;
-                    Node* right;
-                    Node(int addData);
-                    ~Node();
-                private:
-                    Node* nodePtr;
-            };
-            Node* rootPtr;
-            void addData(int newKey, Node* &rootPtr);
-            bool checkKey(int data, Node* &rootPtr);
-            vector<int> sortedVector;
-            void sortVector(Node* &rootPtr);
-            int checkHeight(Node* rootPtr);
-    };
-    BST::BST()  {
-        rootPtr = nullptr; // Creating an empty tree!
+#include <iostream>
+#include <vector>
+#include "function.hpp"
+
+std::vector<int> return_smallest_missing_vector(int size) 
+{
+    std::vector<int> v(size);
+
+    for (int i = 0; i < v.size(); i++) 
+    {
+        v[i] = v.size() - i - 1;
     }
-    BST::~BST()  {
-        if(rootPtr != nullptr) {
-            delete rootPtr;
-        }
+
+    return v;
+} 
+
+namespace student_function
+{
+    Category category = LINEAR_TIME;
+    std::vector<int> problem_sizes = {};
+    
+    std::vector<int> v;
+
+    static void initialize(int problem_size)
+    {
+        v = return_smallest_missing_vector(problem_size);
     }
-    BST::Node::Node(int addData) {
-        left = nullptr;
-        right = nullptr;
-        this->data = addData;
-    }
-    BST::Node::~Node() {
-        if(right != nullptr) {
-            delete right;
-        }
-        if(left != nullptr) {
-            delete left;
-        }
-    }
-    void BST::insertKey(int newKey) {
-        addData(newKey, rootPtr);
-    }
-    void BST::addData(int newKey, Node* &rootPtr) {
-        if(rootPtr == nullptr) {
-            rootPtr = new Node(newKey);
-            // cout << rootPtr->data << endl;
-        }
-        else if(rootPtr->data > newKey){
-            addData(newKey, rootPtr->left);
-        }
-        else if(rootPtr->data < newKey) {
-            addData(newKey, rootPtr->right);
-        }
-    }
-    bool BST::hasKey(int searchKey) {
-        return checkKey(searchKey, rootPtr);
-    }
-    bool BST::checkKey(int data, Node* &rootPtr) {
-        if(rootPtr == nullptr) {
-            return false;
-        }
-        else if(rootPtr->data == data){
-            return true;
-        }
-        else if(data < rootPtr->data) {
-            return checkKey(data, rootPtr->left);
-        }
-        else {
-            return checkKey(data, rootPtr->right);
-        }
-    }
-    vector<int> BST::inOrder() {
-        sortVector(rootPtr);
-        return sortedVector;
-    }
-    void BST::sortVector(Node* &rootPtr) {
-        if(rootPtr != nullptr) {
-            sortVector(rootPtr->left);
-            sortedVector.push_back(rootPtr->data);
-            sortVector(rootPtr->right);
-        }
-    }
-    int BST::getHeight() {
-        return checkHeight(rootPtr);
-    }
-    int BST::checkHeight(Node* rootPtr) {
-        if(rootPtr == nullptr) {
-            return 0;
-        }
-        else {
-            int heightRight = checkHeight(rootPtr->right);
-            int heightLeft = checkHeight(rootPtr->left);
-            if(heightRight > heightLeft){
-                return (heightRight + 1);
-            }
-            else {
-                return (heightLeft +1);
-            }
-        }
-    }
-    int main() {
-        int userInput, findNumber;
-        string result;
-        vector<int> sortedTree;
-        BST tree;
-        BST* binarySearchTree = new BST;
-        cout << "Enter the numbers to be stored (end with a letter): ";
+
+    static int run()
+    {
+        findSmallestMissingNumber(v);
         
-        while(!cin.fail()){
-            cin >> userInput;
-            if(!cin.fail()){
-                binarySearchTree->insertKey(userInput);
-            }
-        }
-        
-        cin.clear();
-        cin.ignore();
-        cout << "Which number do you want to look up? ";
-        cin >> findNumber;
-        if(binarySearchTree->hasKey(findNumber) == true) {
-            result = "yes";
-        }
-        else {
-            result = "no";
-        }
-        cout << findNumber << " is in the tree: " << result << endl;
-        cout << "The numbers in sorted order: ";
-        sortedTree = binarySearchTree->inOrder();
-        for(int j = 0; j < sortedTree.size(); j++) {
-            cout << sortedTree.at(j) << " ";
-        }
-        cout << endl;
-        cout << "Height of the tree: " << binarySearchTree->getHeight() << endl;
-        delete binarySearchTree;
         return 0;
     }
-
+}
 
 #include <iostream>
 #include "unit-class.hpp"
 
-int renamedMain()
+int run_framework()
 {
-    Framework framework(LINEAR_NUM);
-    try 
-    {
-        framework.test_function();
-    }
-    catch (std::exception& e) 
-    {
-        std::cerr << "exception: " << e.what() << std::endl;
-    }
-    return 0;
+    Framework framework;
+    return framework.test_function();
 }

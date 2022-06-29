@@ -1,152 +1,174 @@
 
 
-    #include <iostream>
-    #include <cmath>
-    #include <vector>
-    #include <string>
-    using namespace std;
-    class BST{
-        public:
-            BST();
-            ~BST();
-            void insertKey(int newKey);
-            bool hasKey(int searchKey);
-            std::vector<int> inOrder();
-            int getHeight();
-        private:
-            class Node {
-                public:
-                    int data; // Node Object
-                    Node* left;
-                    Node* right;
-                    Node(int addData);
-                    ~Node();
-                private:
-                    Node* nodePtr;
-            };
-            Node* rootPtr;
-            void addData(int newKey, Node* &rootPtr);
-            bool checkKey(int data, Node* &rootPtr);
-            vector<int> sortedVector;
-            void sortVector(Node* &rootPtr);
-            int checkHeight(Node* rootPtr);
-    };
-    BST::BST()  {
-        rootPtr = nullptr; // Creating an empty tree!
+#include <iostream>
+#include<string>
+#include<vector>
+#include<math.h>
+#include<algorithm>
+#include<iomanip>
+#include<queue>
+#include<climits>
+using namespace std;
+//Node class for each individual pointer node in a BST
+class Node
+{
+public:
+    int val;
+    Node* left;
+    Node* right;
+    //Consteructor for Node class
+    Node(int val)
+    {
+        this->val = val;
+        this->left = nullptr;
+        this->right = nullptr;
     }
-    BST::~BST()  {
-        if(rootPtr != nullptr) {
-            delete rootPtr;
-        }
+};
+class BST {
+    Node* root;
+public:
+    BST() {
+        root = nullptr;
     }
-    BST::Node::Node(int addData) {
-        left = nullptr;
-        right = nullptr;
-        this->data = addData;
+    //Insert key function which  has a helper recursive function
+    void insertKey(int newKey) {
+        root = insertRec(newKey, root);
     }
-    BST::Node::~Node() {
-        if(right != nullptr) {
-            delete right;
-        }
-        if(left != nullptr) {
-            delete left;
-        }
+    //Check key function which has a heper recursive function
+    bool hasKey(int searchKey) {
+        return  recurhasKey(searchKey, root);
     }
-    void BST::insertKey(int newKey) {
-        addData(newKey, rootPtr);
+    //Function for creating inordr epresentation in vector
+    std::vector<int> inOrder() {
+        vector<int> v;
+        //Passing vector as reference
+        recurInorder(root, v);
+        return v;
     }
-    void BST::addData(int newKey, Node* &rootPtr) {
-        if(rootPtr == nullptr) {
-            rootPtr = new Node(newKey);
-            // cout << rootPtr->data << endl;
-        }
-        else if(rootPtr->data > newKey){
-            addData(newKey, rootPtr->left);
-        }
-        else if(rootPtr->data < newKey) {
-            addData(newKey, rootPtr->right);
-        }
+    //Function to get height of the tree which also has a helper
+    int getHeight() {
+        return recurgetHeight(root);
     }
-    bool BST::hasKey(int searchKey) {
-        return checkKey(searchKey, rootPtr);
+    //Overidding destructor for BST call and we need helper recursive function as we need to delete all the nodes recursively using delete keyword
+    ~BST() {
+        recurDelete(root);
+        root = nullptr;
     }
-    bool BST::checkKey(int data, Node* &rootPtr) {
-        if(rootPtr == nullptr) {
-            return false;
+    
+private:
+    //This is recursive implementation of insertKey  because it takes root as the parameter which keeps changeing
+    Node* insertRec(int newKey, Node* root)
+    {
+        if (root == nullptr) {
+            Node* curr = new Node(newKey);
+            return curr;
         }
-        else if(rootPtr->data == data){
-            return true;
-        }
-        else if(data < rootPtr->data) {
-            return checkKey(data, rootPtr->left);
+        if (root->val < newKey) {
+            root->right = insertRec(newKey, root->right);
         }
         else {
-            return checkKey(data, rootPtr->right);
+            root->left = insertRec(newKey, root->left);
         }
+        return root;
     }
-    vector<int> BST::inOrder() {
-        sortVector(rootPtr);
-        return sortedVector;
+    //This is recursive implementation of checkKey  because it takes root as the parameter which keeps changeing
+    bool recurhasKey(int searchKey, Node* root)
+    {
+        if (root == nullptr)
+            return false;;
+        if (root->val < searchKey)
+            return recurhasKey(searchKey, root->right);
+        else if (root->val == searchKey)
+            return true;
+        else
+            return recurhasKey(searchKey, root->left);
     }
-    void BST::sortVector(Node* &rootPtr) {
-        if(rootPtr != nullptr) {
-            sortVector(rootPtr->left);
-            sortedVector.push_back(rootPtr->data);
-            sortVector(rootPtr->right);
-        }
+    //This is recursive implementation of inOrder  because it takes root as the parameter which keeps changeing nad vector is passed as reference
+    void recurInorder(Node* root, vector<int>& v)
+    {
+        if (root == nullptr)
+            return;
+        recurInorder(root->left, v);
+        v.push_back(root->val);
+        recurInorder(root->right, v);
     }
-    int BST::getHeight() {
-        return checkHeight(rootPtr);
+    //This is recursive implementation of getHeight  because it takes root as the parameter which keeps changeing
+    int recurgetHeight(Node* root)
+    {
+        if (root == nullptr)
+            return 0;
+        return 1 + max(recurgetHeight(root->left), recurgetHeight(root->right));
     }
-    int BST::checkHeight(Node* rootPtr) {
-        if(rootPtr == nullptr) {
+    //delete all allocated data
+    void recurDelete(Node* root) {
+        if (root == nullptr)
+            return;
+        recurDelete(root->left);
+        recurDelete(root->right);
+        delete(root);
+        root = nullptr;
+    }
+    //counting nodes
+    unsigned int nodeCount(const Node* node)
+    {
+        if (node == nullptr) {
             return 0;
         }
         else {
-            int heightRight = checkHeight(rootPtr->right);
-            int heightLeft = checkHeight(rootPtr->left);
-            if(heightRight > heightLeft){
-                return (heightRight + 1);
-            }
-            else {
-                return (heightLeft +1);
-            }
+            return 1 + nodeCount(node->left) + nodeCount(node->right);
         }
     }
-    int main() {
-        int userInput, findNumber;
-        string result;
-        vector<int> sortedTree;
-        BST tree;
-        BST* binarySearchTree = new BST;
-        cout << "Enter the numbers to be stored (end with a letter): ";
-        
-        while(!cin.fail()){
-            cin >> userInput;
-            if(!cin.fail()){
-                binarySearchTree->insertKey(userInput);
-            }
+};
+//check if given string is integer or not
+bool isInteger(string str)
+{
+    for (int i = 0; i < str.size(); i++)
+    {
+        if (str.at(i) == '-') {
+            i++;
         }
-        
-        cin.clear();
-        cin.ignore();
-        cout << "Which number do you want to look up? ";
-        cin >> findNumber;
-        if(binarySearchTree->hasKey(findNumber) == true) {
-            result = "yes";
+        if (!isdigit(str.at(i))) {
+            return false;
         }
-        else {
-            result = "no";
-        }
-        cout << findNumber << " is in the tree: " << result << endl;
-        cout << "The numbers in sorted order: ";
-        sortedTree = binarySearchTree->inOrder();
-        for(int j = 0; j < sortedTree.size(); j++) {
-            cout << sortedTree.at(j) << " ";
-        }
-        cout << endl;
-        cout << "Height of the tree: " << binarySearchTree->getHeight() << endl;
-        delete binarySearchTree;
-        return 0;
     }
+    return true;
+}
+int main()
+{
+    BST* tree = new BST();
+    string str;
+    //Taking user input till the user inputs a q or Q
+    cout << "Enter the numbers to be stored (end with a letter): ";
+    while (cin >> str)
+    {
+        //Calling helper function to check if input is integer or not
+        if (!isInteger(str)) {
+            break;
+        }
+        int v = stoi(str);
+        tree->insertKey(v);
+    }
+    cout << endl;
+    cout << "Which number do you want to look up? ";
+    int keyToSearch;
+    cin >> keyToSearch;
+    cout << endl;
+    cout << keyToSearch << " is in the tree: ";
+    if (tree->hasKey(keyToSearch)) {
+        cout << "yes" << endl;
+    }
+    else {
+        cout << "no" << endl;;
+    }
+    vector<int> v = tree->inOrder();
+    //Printing vector
+    cout << "The numbers in sorted order: ";
+    for (int i = 0; i < v.size(); i++) {
+        cout << v[i] << " ";
+    }
+    cout << endl;
+    cout << "Height of the tree: " << tree->getHeight() << endl;
+    delete(tree);
+    return 0;
+}
 

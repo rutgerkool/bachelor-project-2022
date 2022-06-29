@@ -1,8 +1,18 @@
-*.data
+*
+!*.cpp
+!*.hpp
+!/figures
+!*.jpg
 
-*.o
-*.obj
-*.a
+# !*/
+# !*.*
 
-*.out
+# *.data
+
+# *.o
+# *.obj
+# *.a
+
+# *.out
+# *.txt
 

@@ -1,4 +1,4 @@
+
 #include "include.hpp"
 
-#define main() main() {renamedMain(); return 0;} int foo()
-
+#define main(...)                                   main() {run_framework(); return 0;} int foo(int argc, char *argv[])

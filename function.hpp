@@ -1,18 +1,9 @@
-#include <iostream>
-#include <vector> 
+#ifndef FUNCTION_H
+#define FUNCTION_H
 
-namespace student_function
+enum Category 
 {
-    BST *binarySearchTree;
+    CONSTANT_TIME, LOGARITHMIC_TIME, LINEAR_TIME, LINEARITHMIC_TIME, QUADRATIC_TIME, FACTORIAL_TIME
+};
 
-    static void initialize(int problem_size)
-    {
-        binarySearchTree = new BST;
-        for (int i = 0; i < problem_size; i++) binarySearchTree->insertKey(i);
-    }
-
-    static void run()
-    {
-        binarySearchTree->inOrder();
-    }
-}
+#endif
