@@ -3,7 +3,7 @@
 #include <string>
 #include <array>
 
-std::string exec(const char* cmd) 
+std::string return_command_output(const char* cmd) 
 {
     std::array<char, 128> buffer;
     std::string result;
@@ -28,9 +28,9 @@ int main()
 
     for (int i = 0; i < 100; i++)
     {
-        system("cat include.cpp bst* function.cpp unit-class.cpp > bigOtestFunction.cpp");
+        system("cat include.cpp examples/sm* function.cpp unit-class.cpp > bigOtestFunction.cpp");
         system("g++ -o bigOtestFunction bigOtestFunction.cpp");
-        std::string output = exec("./bigOtestFunction");
+        std::string output = return_command_output("./bigOtestFunction");
         if (output.find("SUCCES") != std::string::npos) succes_count++;
         
         total_count++;
@@ -39,9 +39,9 @@ int main()
     std::cout << "Total succes count: " << succes_count << std::endl;
 
     std::ofstream file;
-    file.open("results-2.txt", std::ios_base::app);
+    file.open("results.txt", std::ios_base::app);
 
-    file << "3 " << succes_count << std::endl;
+    file << succes_count << std::endl;
 
     file.close();
     

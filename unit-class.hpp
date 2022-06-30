@@ -77,8 +77,8 @@ private:
             return {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};    
         case LINEAR_TIME:
             //return {20, 40, 80, 160, 320, 640};
-            return {2,4,8,16,32,64};
-            //return {80, 160, 320, 640, 1280};
+            //return {2,4,8,16,32,64};
+            return {80, 160, 320, 640, 1280};
         case LINEARITHMIC_TIME:
             return {40, 80, 160, 320, 640, 1280};    
         case QUADRATIC_TIME:
