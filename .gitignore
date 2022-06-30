@@ -2,7 +2,10 @@
 !*.cpp
 !*.hpp
 !/figures
+!/examples
+!*.py
 !*.jpg
+
 
 # !*/
 # !*.*

@@ -15,28 +15,14 @@
 #define MAX_LINEAR_TEST_TIME        300000
 #define MAX_QUADRATIC_TEST_TIME     40000000
 
-int cycle_count = 1000;
-int max_run_time = 100000000;
-int max_test_time = MAX_QUADRATIC_TEST_TIME;
-
-std::vector<int> return_random_vector(int size) 
-{
-    std::vector<int> v(size);
-    srand((unsigned)time(0)); 
-
-    for (int i = 0; i < size; i++) 
-    {
-        v[i] = rand() % size;
-    }
-
-    return v;
-} 
-
 class Framework
 {
 private:
     Category category;
     std::vector<int> problem_sizes;
+    int cycle_count = 1000;
+    int max_run_time = 100000000;
+    int max_test_time = MAX_QUADRATIC_TEST_TIME;
 
     std::string return_test_category_string()
     {
