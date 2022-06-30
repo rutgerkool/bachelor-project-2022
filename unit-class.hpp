@@ -6,10 +6,8 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
-#include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <string>
 #include "function.hpp"
 
 #define MAX_LINEAR_TEST_TIME        300000
@@ -50,9 +48,6 @@ private:
         return (n == 0) || (n == 1) ? 1 : n * fact(n - 1);
     }
 
-    /*
-    To get the problem sizes for the right category.
-    */
     std::vector<int> get_sizes()
     {
         switch (category)
@@ -62,16 +57,14 @@ private:
         case LOGARITHMIC_TIME:
             return {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};    
         case LINEAR_TIME:
-            //return {20, 40, 80, 160, 320, 640};
-            //return {2,4,8,16,32,64};
+            max_test_time = MAX_LINEAR_TEST_TIME;
             return {80, 160, 320, 640, 1280};
         case LINEARITHMIC_TIME:
             return {40, 80, 160, 320, 640, 1280};    
         case QUADRATIC_TIME:
             return {40, 80, 160, 320, 640};    
         case FACTORIAL_TIME:
-            return {2, 4, 6, 8, 10, 12};
-            //return {4,5,6,7,8};    
+            return {2, 4, 6, 8, 10, 12};  
         }
         return {-1};
     } 
@@ -81,22 +74,32 @@ private:
         return (x - mean) / std;
     }
 
-    std::vector<double> get_filtered_times(std::vector<double> running_times)
+    double return_mean_and_std(std::vector<double> running_times)
     {
-        std::vector<double> filtered_running_times;
         double std, mean, sum = 0.0;
 
         sum = std::accumulate(running_times.begin(), running_times.end(), 0.0);
         mean = sum / running_times.size();
 
-        for (double x : running_times) {
+        for (double x : running_times) 
+        {
             std += pow(x - mean, 2);
         }
 
         std = sqrt(std / running_times.size());
 
-        for (double time : running_times) {
-            if (get_z_score(time, mean, std) < 3 && get_z_score(time, mean, std) > -3) {
+        return mean, std;
+    }
+
+    std::vector<double> get_filtered_times(std::vector<double> running_times)
+    {
+        std::vector<double> filtered_running_times;
+        double std, mean = return_mean_and_std(running_times);
+
+        for (double time : running_times) 
+        {
+            if (get_z_score(time, mean, std) < 3 && get_z_score(time, mean, std) > -3) 
+            {
                 filtered_running_times.push_back(time);
             } 
         }
@@ -128,32 +131,17 @@ private:
         return -1;
     }
 
-    bool is_constant_time(double average_time, double expected_time)
+    bool is_outside_10_range(double average_time, double expected_time)
     {
         return average_time < 0.9 * expected_time || average_time > 1.1 * expected_time;
     }
 
-    bool is_logarithmic_time(double average_time, double expected_time)
-    {
-        return average_time < 0.90 * expected_time || average_time > 1.10 * expected_time;
-    }
-
-    bool is_linear_time(double average_time, double expected_time)
-    {
-        return average_time < 0.90 * expected_time || average_time > 1.10 * expected_time;
-    }
-
-    bool is_linearithmic_time(double average_time, double expected_time)
+    bool is_outside_20_range(double average_time, double expected_time)
     {
         return average_time < 0.80 * expected_time || average_time > 1.20 * expected_time;
     }
 
-    bool is_quadratic_time(double average_time, double expected_time)
-    {
-        return average_time < 0.80 * expected_time || average_time > 1.20 * expected_time;
-    }
-
-    bool is_factorial_time(double average_time, double expected_time)
+    bool is_outside_25_range(double average_time, double expected_time)
     {
         return average_time < 0.75 * expected_time || average_time > 1.25 * expected_time;
     }
@@ -163,17 +151,17 @@ private:
         switch (category)
         {
         case CONSTANT_TIME:
-            return is_constant_time(average_time, expected_time);    
+            return is_outside_10_range(average_time, expected_time);    
         case LOGARITHMIC_TIME:
-            return is_logarithmic_time(average_time, expected_time);    
+            return is_outside_10_range(average_time, expected_time);    
         case LINEAR_TIME:
-            return is_linear_time(average_time, expected_time);    
+            return is_outside_10_range(average_time, expected_time);    
         case LINEARITHMIC_TIME:
-            return is_linearithmic_time(average_time, expected_time);    
+            return is_outside_20_range(average_time, expected_time);    
         case QUADRATIC_TIME:
-            return is_quadratic_time(average_time, expected_time);    
+            return is_outside_20_range(average_time, expected_time);    
         case FACTORIAL_TIME:
-            return is_factorial_time(average_time, expected_time);    
+            return is_outside_25_range(average_time, expected_time);    
         }
         return false;
     }
@@ -181,13 +169,17 @@ private:
     int get_fail_count(std::vector<double> average_times)
     {
         int fail_count = 0;
-        for (int i = 0; i < average_times.size() - 1; i++) {
+        for (int i = 0; i < average_times.size() - 1; i++) 
+        {
             double expected_time = get_expected_time(average_times, i);
 
-            if (is_time(average_times.at(i + 1), expected_time)) {
+            if (is_time(average_times.at(i + 1), expected_time)) 
+            {
                 fail_count++;
                 std::cerr << average_times.at(i + 1) << " " << expected_time << " " << fail_count << std::endl;
-            } else {
+            } 
+            else 
+            {
                 std::cerr << "passed\n";
             }
         }
@@ -201,16 +193,19 @@ private:
         std::cerr << "Testing for " << category_name << ":" << std::endl;
 
         int fail_count = get_fail_count(average_times);
-        if (fail_count > 1) {
+        if (fail_count > 1) 
+        {
             std::cerr << "Less than " << average_times.size() - 2 << "/" << average_times.size() - 1 << " tests passed: ";
             return false;
         }
         std::cerr << average_times.size() - 1 - fail_count << "/" << average_times.size() - 1 << " tests passed: ";
 
-        for (int i = 0; i < average_times.size(); i++) {
+        for (int i = 0; i < average_times.size(); i++) 
+        {
             if (average_times[i] == -1) return false;
         }
-        if (average_times.size() < 2) {
+        if (average_times.size() < 2) 
+        {
             return false;
         }
         return true;
@@ -220,13 +215,15 @@ private:
     {
         std::string category_name = return_test_category_string();
         
-        if (is_in_category) {
+        if (is_in_category) 
+        {
             std::cout << "SUCCESS\n" << std::endl;
             std::cerr << "\033[1;32mSUCCESS\033[0m\n" << std::endl;
             std::cout << "Function is in " << category_name << "\n";
             return 0;    
         }
-        else {
+        else 
+        {
             std::cout << "FAIL\n" << std::endl;
             std::cerr << "\033[1;31mFAIL\033[0m\n" << std::endl;
             std::cout << "Function is not in " << category_name << "\n"; 
@@ -236,7 +233,7 @@ private:
 
     double get_average_time(std::vector<double> running_times, int problem_size)
     {
-        std::vector<double> filtered_times = running_times;
+        std::vector<double> filtered_times = get_filtered_times(running_times);
         double total_time = std::accumulate(filtered_times.begin(), filtered_times.end(), 0.0);
         double average_time = total_time / filtered_times.size();
 
