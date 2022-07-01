@@ -1,35 +1,24 @@
 #include <iostream>
-#include <vector>
+#include <vector> 
 #include "function.hpp"
-
-std::vector<int> return_smallest_missing_vector(int size) 
-{
-    std::vector<int> v(size);
-
-    for (int i = 0; i < v.size(); i++) 
-    {
-        v[i] = v.size() - i - 1;
-    }
-
-    return v;
-} 
 
 namespace student_function
 {
-    Category category = LINEAR_TIME;
-    std::vector<int> problem_sizes = {};
-    
-    std::vector<int> v;
+    Category category = LINEAR_TIME; // Indicate which big-O category needs to be tested
+    std::vector<int> problem_sizes = {}; // Optional: specify which problem sizes need to be tested. 
+                                        //  For linear/quadratic tests, these values need to increase by a factor of 2. 
+
+    // Add aditional variables needed for initialization/running. 
 
     static void initialize(int problem_size)
     {
-        v = return_smallest_missing_vector(problem_size);
+        // Specify how to initialize the function here given its problem size.
     }
 
     static int run()
     {
-        findSmallestMissingNumber(v);
-        
+        // Specify which function to run here.
+
         return 0;
     }
 }
