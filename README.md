@@ -16,7 +16,7 @@ The first command concatenates the necessary source code files with the file in 
 The second and third command compile the file created by the first command and execute it to run the tests. 
 
 ### Running Arbitrary Functions
-When the user wants to run specific functions in a separate file, the first command should be adapted so that "examples/sm*" is changed to the file in which the function is defined. The user can then specify which function to test, how to initialize this function, and which big-O category and problem sizes are included in the test in the include.cpp file. 
+When the user wants to run specific functions in a separate file, the first command should be adapted so that "examples/sm*" is changed to the file in which the function is defined. The user can then specify which function to test, how to initialize this function, and which big-O category and problem sizes are included in the test in the function.cpp file. 
 
 ## Recreating the Evaluation Results
 The evaluation results are obtained by using the results.cpp file to run the framework 100 times for a certain test case and outputting the number of times the big-O category to be tested for was assigned to the tested function. The test cases were specified manually by adapting the values of the cycle_count and problem_sizes variables to check for the accuracy of these values. The plot.py script was used to generate the plots that represent the results of these tests. The user of the framework can use the examples in the examples directory to reproduce these results. 
